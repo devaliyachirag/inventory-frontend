@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-import LoginForm from "../components /Loginform";
-import RegisterForm from "../components /RegisterForm";
+import LoginForm from "../components/Loginform";
+import RegisterForm from "../components/RegisterForm";
 import bg from "../assets/images/bgcrm.png";
 const Container = styled.div`
   display: flex;

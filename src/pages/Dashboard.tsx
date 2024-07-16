@@ -2,10 +2,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
-import { Modal, Box } from "@mui/material";
-import ClientForm from "../components /ClientForm";
-import {ClientFormData} from "../components /ClientForm";
-import { SubmitHandler } from "react-hook-form";
+import ClientSection from "./ClientSection";
+import InvoiceSection from "./InvoiceSection";
 
 const Container = styled.div`
   padding: 20px;
@@ -53,77 +51,16 @@ const Table = styled.div`
   margin-top: 20px;
 `;
 
-const TableSection = styled.div`
-  flex: 1;
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const SectionHeading = styled.h2`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 20px;
-  margin-bottom: 10px;
-`;
-
-const AddButton = styled.button`
-  padding: 5px 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
-  &:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
-  }
-`;
-
-const NoDataMessage = styled.p`
-  color: #888;
-  font-size: 16px;
-`;
-
-const DataList = styled.ul`
-  list-style-type: none;
-  padding: 0;
-`;
-
-const modalStyle = {
-  position: 'absolute' as 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-};
-
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
 
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
   };
 
-  const onSubmit: SubmitHandler<ClientFormData> = (data:any) => {
-    console.log(data);
-    // Handle the form submission, e.g., send data to the backend
-    handleClose();
-  };
-
-  const clients = []; // Replace with actual client data
-  const invoices = []; // Replace with actual invoice data
+  const clients:any = []; 
+  const invoices:any = []; 
 
   return (
     <Container>
@@ -132,38 +69,9 @@ const Dashboard: React.FC = () => {
         <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
       </Header>
       <Table>
-        <TableSection>
-          <SectionHeading>
-            Client
-            <AddButton onClick={handleOpen}>Add Client</AddButton>
-          </SectionHeading>
-          {clients.length === 0 ? (
-            <NoDataMessage>No data</NoDataMessage>
-          ) : (
-            <DataList>
-              {/* Map through clients and render them here */}
-            </DataList>
-          )}
-        </TableSection>
-        <TableSection>
-          <SectionHeading>
-            Invoice
-            <AddButton onClick={() => console.log("Add Invoice")}>Add Invoice</AddButton>
-          </SectionHeading>
-          {invoices.length === 0 ? (
-            <NoDataMessage>No data</NoDataMessage>
-          ) : (
-            <DataList>
-              {/* Map through invoices and render them here */}
-            </DataList>
-          )}
-        </TableSection>
+        <ClientSection />
+        <InvoiceSection />
       </Table>
-      <Modal open={open} onClose={handleClose}>
-        <Box sx={modalStyle}>
-          <ClientForm onSubmit={onSubmit} />
-        </Box>
-      </Modal>
     </Container>
   );
 };
