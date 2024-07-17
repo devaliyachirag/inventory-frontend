@@ -5,7 +5,7 @@ import axiosInstance from '../components/axiosInstance';
 import InvoiceForm from '../components/InvoiceForm';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { format } from 'date-fns'; // Import the date-fns format function
+import { format } from 'date-fns'; 
 
 const TableSection = styled.div`
   flex: 1;
@@ -68,7 +68,6 @@ const InvoiceSection: React.FC = () => {
       try {
         const token = localStorage.getItem('token');
 
-        // Fetch invoices
         const invoicesResponse = await axiosInstance.get('/user-invoices', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -76,7 +75,6 @@ const InvoiceSection: React.FC = () => {
         });
         setInvoices(invoicesResponse.data);
 
-        // Fetch clients
         const clientsResponse = await axiosInstance.get('/clients', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -105,7 +103,6 @@ const InvoiceSection: React.FC = () => {
         },
       });
 
-      // Remove invoice from state
       setInvoices(invoices.filter(invoice => invoice.id !== invoiceId));
     } catch (error) {
       console.error('Error deleting invoice:', error);
@@ -113,7 +110,7 @@ const InvoiceSection: React.FC = () => {
   };
 
   const handleEditInvoice = (invoice: any) => {
-    handleOpen(invoice); // Open the form in edit mode
+    handleOpen(invoice);
   };
 
   return (

@@ -84,7 +84,7 @@ const LoginForm: React.FC= () => {
   const onSubmit: SubmitHandler<ILoginInput> = async (data) => {
     try {
       const response = await axiosInstance.post("/login", data);;
-      localStorage.setItem('token', response.data.token); // Save token in local storage
+      localStorage.setItem('token', response.data.token);
     } catch (error: any) {
       if (error.response) {
         alert(error.response.data.message);

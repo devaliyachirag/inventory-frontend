@@ -1,12 +1,27 @@
 // InvoiceForm.tsx
-import React, { useState, useEffect } from 'react';
-import { Modal, Box, TextField, Button, Typography, Select, MenuItem, FormControl, InputLabel, FormHelperText, Grid, IconButton, InputAdornment } from '@mui/material';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import styled from '@emotion/styled';
-import axiosInstance from '../components/axiosInstance';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import React, { useState, useEffect } from "react";
+import {
+  Modal,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import styled from "@emotion/styled";
+import axiosInstance from "../components/axiosInstance";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import Token from "./token";
 
 const DatePickerWrapper = styled.div`
   .react-datepicker-wrapper {
@@ -21,17 +36,17 @@ const DatePickerWrapper = styled.div`
 `;
 
 const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
   width: 600,
-  bgcolor: 'background.paper',
+  bgcolor: "background.paper",
   borderRadius: 2,
   boxShadow: 24,
   p: 4,
-  display: 'flex',
-  flexDirection: 'column',
+  display: "flex",
+  flexDirection: "column",
   gap: 2,
 };
 
@@ -53,22 +68,34 @@ export type InvoiceFormData = {
 interface InvoiceFormProps {
   open: boolean;
   handleClose: () => void;
-  invoice?: any;  // Add optional invoice prop for editing
-  onDelete?: (id: string) => void;  // Add optional delete handler
+  invoice?: any;
+  onDelete?: (id: string) => void;
 }
 
-const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, onDelete }) => {
-  const { control, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm<InvoiceFormData>({
+const InvoiceForm: React.FC<InvoiceFormProps> = ({
+  open,
+  handleClose,
+  invoice,
+  onDelete,
+}) => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    reset,
+  } = useForm<InvoiceFormData>({
     defaultValues: {
-      items: [{ name: '', amount: 0, quantity: 0, total: 0 }]
-    }
+      items: [{ name: "", amount: 0, quantity: 0, total: 0 }],
+    },
   });
   const [clientList, setClientList] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         const response = await axiosInstance.get("/clients", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -85,7 +112,6 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, o
 
   useEffect(() => {
     if (invoice) {
-      // Set form values for editing
       reset({
         invoiceDate: new Date(invoice.invoiceDate),
         invoiceNumber: invoice.invoiceNumber,
@@ -94,14 +120,17 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, o
         items: invoice.items,
       });
     } else {
-      // Reset form if no invoice to edit
       reset();
     }
   }, [invoice, open, reset]);
 
-  const items = watch('items');
+  const items = watch("items");
 
-  const handleItemChange = (index: number, field: string, value: string | number) => {
+  const handleItemChange = (
+    index: number,
+    field: string,
+    value: string | number
+  ) => {
     const updatedItems = items.map((item, i) => {
       if (i === index) {
         const updatedItem = { ...item, [field]: value };
@@ -110,36 +139,34 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, o
       }
       return item;
     });
-    setValue('items', updatedItems);
+    setValue("items", updatedItems);
   };
 
   const addItem = () => {
-    const newItem = { name: '', amount: 0, quantity: 0, total: 0 };
-    setValue('items', [...items, newItem]);
+    const newItem = { name: "", amount: 0, quantity: 0, total: 0 };
+    setValue("items", [...items, newItem]);
   };
 
-  const handleDelete = async () => {
+  const handleDelete =  () => {
     if (invoice && onDelete) {
-      await onDelete(invoice.id);
+     onDelete(invoice.id);
       handleClose();
     }
   };
 
   const onSubmit: SubmitHandler<InvoiceFormData> = async (data) => {
     try {
-      const token = localStorage.getItem('token');
+      Token()
       if (invoice) {
-        // Update existing invoice
         await axiosInstance.put(`/update-invoice/${invoice.id}`, data, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${Token()}`,
           },
         });
       } else {
-        // Add new invoice
         await axiosInstance.post("/add-invoice", data, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${Token()}`,
           },
         });
       }
@@ -153,7 +180,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, o
     <Modal open={open} onClose={handleClose}>
       <Box sx={modalStyle}>
         <Typography variant="h6" gutterBottom>
-          {invoice ? 'Edit Invoice' : 'Add Invoice'}
+          {invoice ? "Edit Invoice" : "Add Invoice"}
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={2}>
@@ -184,9 +211,15 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, o
                           }}
                         />
                       }
-                      className={`form-control ${errors.invoiceDate ? 'is-invalid' : ''}`}
+                      className={`form-control ${
+                        errors.invoiceDate ? "is-invalid" : ""
+                      }`}
                     />
-                    {errors.invoiceDate && <p className="text-danger">{errors.invoiceDate.message}</p>}
+                    {errors.invoiceDate && (
+                      <p className="text-danger">
+                        {errors.invoiceDate.message}
+                      </p>
+                    )}
                   </DatePickerWrapper>
                 )}
                 rules={{ required: "Invoice Date is required" }}
@@ -219,9 +252,15 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, o
                           }}
                         />
                       }
-                      className={`form-control ${errors.invoiceDueDate ? 'is-invalid' : ''}`}
+                      className={`form-control ${
+                        errors.invoiceDueDate ? "is-invalid" : ""
+                      }`}
                     />
-                    {errors.invoiceDueDate && <p className="text-danger">{errors.invoiceDueDate.message}</p>}
+                    {errors.invoiceDueDate && (
+                      <p className="text-danger">
+                        {errors.invoiceDueDate.message}
+                      </p>
+                    )}
                   </DatePickerWrapper>
                 )}
                 rules={{ required: "Invoice Due Date is required" }}
@@ -258,7 +297,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, o
                     </MenuItem>
                   ))}
                 </Select>
-                {errors.clientId && <FormHelperText>{errors.clientId.message}</FormHelperText>}
+                {errors.clientId && (
+                  <FormHelperText>{errors.clientId.message}</FormHelperText>
+                )}
               </FormControl>
             )}
             rules={{ required: "Client is required" }}
@@ -271,7 +312,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, o
                   fullWidth
                   margin="normal"
                   value={item.name}
-                  onChange={(e) => handleItemChange(index, 'name', e.target.value)}
+                  onChange={(e) =>
+                    handleItemChange(index, "name", e.target.value)
+                  }
                 />
               </Grid>
               <Grid item xs={2}>
@@ -281,7 +324,13 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, o
                   fullWidth
                   margin="normal"
                   value={item.amount}
-                  onChange={(e) => handleItemChange(index, 'amount', parseFloat(e.target.value))}
+                  onChange={(e) =>
+                    handleItemChange(
+                      index,
+                      "amount",
+                      parseFloat(e.target.value)
+                    )
+                  }
                 />
               </Grid>
               <Grid item xs={2}>
@@ -291,7 +340,13 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, o
                   fullWidth
                   margin="normal"
                   value={item.quantity}
-                  onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value))}
+                  onChange={(e) =>
+                    handleItemChange(
+                      index,
+                      "quantity",
+                      parseFloat(e.target.value)
+                    )
+                  }
                 />
               </Grid>
               <Grid item xs={2}>
@@ -309,8 +364,14 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, o
           <Button variant="outlined" onClick={addItem} fullWidth>
             Add Item
           </Button>
-          <Button type="submit" variant="contained" color="primary" fullWidth style={{ marginTop: '20px' }}>
-            {invoice ? 'Update Invoice' : 'Submit'}
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            style={{ marginTop: "20px" }}
+          >
+            {invoice ? "Update Invoice" : "Submit"}
           </Button>
           {invoice && (
             <Grid item xs={6}>
@@ -319,7 +380,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ open, handleClose, invoice, o
                 color="error"
                 fullWidth
                 onClick={handleDelete}
-                style={{ marginTop: '20px' }}
+                style={{ marginTop: "20px" }}
               >
                 Delete Invoice
               </Button>

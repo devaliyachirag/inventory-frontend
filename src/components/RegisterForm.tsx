@@ -112,8 +112,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
   const onSubmit: SubmitHandler<IRegisterInput> = async (data) => {
     try {
       const response = await axiosInstance.post("/register", data);
-      // alert(response.data.message);
-      onSuccess(); // Switch to login form on successful registration
+      onSuccess(); 
     } catch (error: any) {
       if (error.response) {
         setServerError(error.response.data.message);
