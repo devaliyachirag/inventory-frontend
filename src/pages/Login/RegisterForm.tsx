@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import styled from "@emotion/styled";
-import axiosInstance from "./axiosInstance";
+import axiosInstance from "../../components/axiosInstance";
 
 const InputWrapper = styled.div`
   position: relative;

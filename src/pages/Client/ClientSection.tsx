@@ -1,3 +1,4 @@
+// src/components/ClientSection.tsx
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import {
@@ -9,12 +10,15 @@ import {
   TableRow,
   Paper,
   IconButton,
+  Button,
+  Pagination,
 } from "@mui/material";
-import axiosInstance from "../components/axiosInstance";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import ClientForm, { ClientFormData } from "../components/ClientForm";
+import ClientForm, { ClientFormData } from "./ClientForm";
 import { SubmitHandler } from "react-hook-form";
+import useAuthApi from "../../components/useApi";
+import { useNavigate } from "react-router-dom";
 
 const TableSection = styled.div`
   flex: 1;
@@ -56,9 +60,11 @@ const ClientSection: React.FC<any> = () => {
   const [editMode, setEditMode] = useState(false);
   const [editClientId, setEditClientId] = useState<string | null>(null);
   const [clientList, setClientList] = useState<any[]>([]);
-  const [defaultValues, setDefaultValues] = useState<
-    ClientFormData | undefined
-  >(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [clientsPerPage] = useState(5);
+  const [defaultValues, setDefaultValues] = useState<ClientFormData | undefined>(undefined);
+  const api = useAuthApi();
+  const navigate = useNavigate();
 
   const handleOpen = () => {
     setOpen(true);
@@ -81,48 +87,26 @@ const ClientSection: React.FC<any> = () => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
-        const response = await axiosInstance.get("/clients", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setClientList(response.data);
+        const clientsData = await api('get', '/clients');
+        setClientList(clientsData);
       } catch (error) {
         console.error("Error fetching clients:", error);
       }
     };
 
     fetchClients();
-  }, []);
+  }, [api]);
 
-  const onSubmit: SubmitHandler<ClientFormData> = async (data) => {
+  const onSubmit: SubmitHandler<ClientFormData> = async (data: any) => {
     try {
-      const token = localStorage.getItem("token");
       if (editMode && editClientId) {
-        await axiosInstance.put(`/update-client/${editClientId}`, data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await api('put', `/update-client/${editClientId}`, data);
         handleClose();
       } else {
-        await axiosInstance.post("/add-client", data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await api('post', '/add-client', data);
       }
-      const updatedClients = await axiosInstance.get("/clients", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setClientList(updatedClients.data);
+      const updatedClients = await api('get', '/clients');
+      setClientList(updatedClients);
       handleClose();
     } catch (error: any) {
       if (error.response) {
@@ -145,23 +129,25 @@ const ClientSection: React.FC<any> = () => {
 
   const handleDelete = async (clientId: string) => {
     try {
-      const token = localStorage.getItem("token");
-      await axiosInstance.delete(`/delete-client/${clientId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const updatedClients = await axiosInstance.get("/clients", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setClientList(updatedClients.data);
+      await api('delete', `/delete-client/${clientId}`);
+      const updatedClients = await api('get', '/clients');
+      setClientList(updatedClients);
     } catch (error) {
       console.error("Error deleting client:", error);
       alert("An error occurred while deleting the client.");
     }
   };
+
+  const handleViewAllClients = () => {
+    navigate('/all-clients');
+  };
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setCurrentPage(value);
+  };
+
+  const lastFiveClients = clientList.slice(-5);
+  const currentClients = currentPage === 1 ? lastFiveClients : clientList.slice((currentPage - 1) * clientsPerPage, currentPage * clientsPerPage);
 
   return (
     <TableSection>
@@ -181,24 +167,18 @@ const ClientSection: React.FC<any> = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {clientList.length > 0 ? (
-              clientList.map((client) => (
+            {currentClients.length > 0 ? (
+              currentClients.map((client) => (
                 <TableRow key={client.id}>
                   <TableCell>{client.name}</TableCell>
                   <TableCell>{client.companyName}</TableCell>
                   <TableCell>{client.companyEmail}</TableCell>
                   <TableCell>{client.gstNumber}</TableCell>
                   <TableCell>
-                    <IconButton
-                      color="primary"
-                      onClick={() => handleEdit(client.id)}
-                    >
+                    <IconButton color="primary" onClick={() => handleEdit(client.id)}>
                       <EditIcon />
                     </IconButton>
-                    <IconButton
-                      color="secondary"
-                      onClick={() => handleDelete(client.id)}
-                    >
+                    <IconButton color="secondary" onClick={() => handleDelete(client.id)}>
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
@@ -214,6 +194,17 @@ const ClientSection: React.FC<any> = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      {clientList.length > 5 && (
+        <Pagination
+          count={Math.ceil(clientList.length / clientsPerPage)}
+          page={currentPage}
+          onChange={handlePageChange}
+          style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}
+        />
+      )}
+      <Button variant="contained" color="primary" onClick={handleViewAllClients} style={{ marginTop: '20px' }}>
+        View All Clients
+      </Button>
       <ClientForm
         open={open}
         handleClose={handleClose}

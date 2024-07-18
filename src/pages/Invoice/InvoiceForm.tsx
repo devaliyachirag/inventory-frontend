@@ -19,9 +19,9 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import styled from "@emotion/styled";
-import axiosInstance from "../components/axiosInstance";
+import axiosInstance from "../../components/axiosInstance";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import Token from "./token";
+import Token from "../../components/token";
 
 const DatePickerWrapper = styled.div`
   .react-datepicker-wrapper {

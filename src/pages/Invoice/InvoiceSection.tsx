@@ -1,11 +1,12 @@
+// src/components/InvoiceSection.tsx
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material';
-import axiosInstance from '../components/axiosInstance';
-import InvoiceForm from '../components/InvoiceForm';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { format } from 'date-fns'; 
+import useAuthApi from '../../components/useApi';
+import InvoiceForm from './InvoiceForm';
 
 const TableSection = styled.div`
   flex: 1;
@@ -52,6 +53,7 @@ const InvoiceSection: React.FC = () => {
   const [clients, setClients] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [currentInvoice, setCurrentInvoice] = useState<any | null>(null); 
+  const api = useAuthApi();
 
   const handleOpen = (invoice?: any) => {
     setCurrentInvoice(invoice || null);
@@ -66,28 +68,18 @@ const InvoiceSection: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const invoicesData = await api('get', '/user-invoices');
+        setInvoices(invoicesData);
 
-        const invoicesResponse = await axiosInstance.get('/user-invoices', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setInvoices(invoicesResponse.data);
-
-        const clientsResponse = await axiosInstance.get('/clients', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setClients(clientsResponse.data);
+        const clientsData = await api('get', '/clients');
+        setClients(clientsData);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
     fetchData();
-  }, [open]);
+  }, [api, open]);
 
   const getClientName = (clientId: string) => {
     const client = clients.find(client => client.id === clientId);
@@ -96,13 +88,7 @@ const InvoiceSection: React.FC = () => {
 
   const handleDeleteInvoice = async (invoiceId: string) => {
     try {
-      const token = localStorage.getItem('token');
-      await axiosInstance.delete(`/delete-invoice/${invoiceId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      await api('delete', `/delete-invoice/${invoiceId}`);
       setInvoices(invoices.filter(invoice => invoice.id !== invoiceId));
     } catch (error) {
       console.error('Error deleting invoice:', error);

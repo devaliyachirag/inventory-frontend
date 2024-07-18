@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-import LoginForm from "../components/Loginform";
-import RegisterForm from "../components/RegisterForm";
-import bg from "../assets/images/bgcrm.png";
+import bg from "../../assets/images/bgcrm.png";
+import LoginForm from "./Loginform";
+import RegisterForm from "./RegisterForm";
 const Container = styled.div`
   display: flex;
   justify-content: center;

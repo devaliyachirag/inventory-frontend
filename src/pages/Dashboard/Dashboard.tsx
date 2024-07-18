@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
-import ClientSection from "./ClientSection";
-import InvoiceSection from "./InvoiceSection";
+import ClientSection from "../Client/ClientSection";
+import InvoiceSection from "../Invoice/InvoiceSection";
 
 const Container = styled.div`
   padding: 20px;

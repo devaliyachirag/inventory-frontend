@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import styled from "@emotion/styled";
-import axiosInstance from './axiosInstance';
+import axiosInstance from '../../components/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 const InputWrapper = styled.div`
   position: relative;
