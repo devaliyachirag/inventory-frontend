@@ -1,7 +1,11 @@
-import React from 'react';
-import { Modal, Box, TextField, Button, Typography } from '@mui/material';
+// src/components/ClientFormPage.tsx
+
+import React, { useEffect } from 'react';
+import { Box, TextField, Button, Typography } from '@mui/material';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import styled from '@emotion/styled';
+import { useNavigate, useParams } from 'react-router-dom';
+import useAuthApi from '../../components/useApi';
 
 export type ClientFormData = {
   email: string;
@@ -12,103 +16,145 @@ export type ClientFormData = {
   gstNumber: string;
 };
 
-const modalStyle = {
-  position: "absolute" as "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
+const formStyle = {
+  maxWidth: 600,
+  margin: 'auto',
+  marginTop: '20px',
+  padding: '20px',
+  bgcolor: 'background.paper',
+  borderRadius: '8px',
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
 };
 
 const SubmitButton = styled(Button)`
   margin-top: 16px;
 `;
 
-interface ClientFormProps {
-  open: boolean;
-  handleClose: () => void;
-  onSubmit: SubmitHandler<ClientFormData>;
-  defaultValues?: ClientFormData;
-  editMode: boolean;
-}
-
-const ClientForm: React.FC<ClientFormProps> = ({ open, handleClose, onSubmit, defaultValues, editMode }) => {
+const ClientFormPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const api = useAuthApi();
   const { register, handleSubmit, formState: { errors }, reset } = useForm<ClientFormData>({
-    defaultValues,
+    defaultValues: {
+      email: '',
+      name: '',
+      companyName: '',
+      companyEmail: '',
+      companyAddress: '',
+      gstNumber: '',
+    },
   });
 
-  React.useEffect(() => {
-    if (defaultValues) {
-      reset(defaultValues);
+  const fetchClientData = async (clientId: string) => {
+    try {
+      const clientData = await api('get', `/client/${clientId}`);
+      reset(clientData);  // Update form fields with fetched data
+    } catch (error) {
+      console.error("Error fetching client data:", error);
     }
-  }, [defaultValues, reset]);
+  };
+
+  useEffect(() => {
+    if (id) {
+      fetchClientData(id);
+    }
+  }, [id, api, reset]);
+
+  const onSubmit: SubmitHandler<ClientFormData> = async (data: any) => {
+    try {
+      if (id) {
+        await api('put', `/update-client/${id}`, data);
+      } else {
+        await api('post', '/add-client', data);
+      }
+      navigate('/');
+    } catch (error: any) {
+      if (error.response) {
+        alert(error.response.data.message);
+      } else {
+        alert("An error occurred. Please try again.");
+      }
+    }
+  };
 
   return (
-    <Modal open={open} onClose={handleClose}>
-      <Box sx={modalStyle}>
-        <Typography variant="h6" gutterBottom>
-          {editMode ? "Edit Client" : "Add Client"}
-        </Typography>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            label="Email"
-            fullWidth
-            margin="normal"
-            {...register("email", { required: "Email is required" })}
-            error={!!errors.email}
-            helperText={errors.email?.message}
-          />
-          <TextField
-            label="Name"
-            fullWidth
-            margin="normal"
-            {...register("name", { required: "Name is required" })}
-            error={!!errors.name}
-            helperText={errors.name?.message}
-          />
-          <TextField
-            label="Company Name"
-            fullWidth
-            margin="normal"
-            {...register("companyName", { required: "Company Name is required" })}
-            error={!!errors.companyName}
-            helperText={errors.companyName?.message}
-          />
-          <TextField
-            label="Company Email"
-            fullWidth
-            margin="normal"
-            {...register("companyEmail", { required: "Company Email is required" })}
-            error={!!errors.companyEmail}
-            helperText={errors.companyEmail?.message}
-          />
-          <TextField
-            label="Company Address"
-            fullWidth
-            margin="normal"
-            {...register("companyAddress", { required: "Company Address is required" })}
-            error={!!errors.companyAddress}
-            helperText={errors.companyAddress?.message}
-          />
-          <TextField
-            label="GST Number"
-            fullWidth
-            margin="normal"
-            {...register("gstNumber", { required: "GST Number is required" })}
-            error={!!errors.gstNumber}
-            helperText={errors.gstNumber?.message}
-          />
-          <SubmitButton type="submit" variant="contained" color="primary" fullWidth>
-            Submit
-          </SubmitButton>
-        </form>
-      </Box>
-    </Modal>
+    <Box sx={formStyle}>
+      <Typography variant="h6" gutterBottom>
+        {id ? "Edit Client" : "Add Client"}
+      </Typography>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <TextField
+          label="Email"
+          fullWidth
+          margin="normal"
+          {...register("email", { required: "Email is required" })}
+          error={!!errors.email}
+          helperText={errors.email?.message}
+          InputLabelProps={{
+            shrink: true, // Ensure label is always visible when there's content
+          }}
+        />
+        <TextField
+          label="Name"
+          fullWidth
+          margin="normal"
+          {...register("name", { required: "Name is required" })}
+          error={!!errors.name}
+          helperText={errors.name?.message}
+          InputLabelProps={{
+            shrink: true, // Ensure label is always visible when there's content
+          }}
+        />
+        <TextField
+          label="Company Name"
+          fullWidth
+          margin="normal"
+          {...register("companyName", { required: "Company Name is required" })}
+          error={!!errors.companyName}
+          helperText={errors.companyName?.message}
+          InputLabelProps={{
+            shrink: true, // Ensure label is always visible when there's content
+          }}
+        />
+        <TextField
+          label="Company Email"
+          fullWidth
+          margin="normal"
+          {...register("companyEmail", { required: "Company Email is required" })}
+          error={!!errors.companyEmail}
+          helperText={errors.companyEmail?.message}
+          InputLabelProps={{
+            shrink: true, // Ensure label is always visible when there's content
+          }}
+        />
+        <TextField
+          label="Company Address"
+          fullWidth
+          margin="normal"
+          {...register("companyAddress", { required: "Company Address is required" })}
+          error={!!errors.companyAddress}
+          helperText={errors.companyAddress?.message}
+          InputLabelProps={{
+            shrink: true, // Ensure label is always visible when there's content
+          }}
+        />
+        <TextField
+          label="GST Number"
+          fullWidth
+          margin="normal"
+          {...register("gstNumber", { required: "GST Number is required" })}
+          error={!!errors.gstNumber}
+          helperText={errors.gstNumber?.message}
+          InputLabelProps={{
+            shrink: true, // Ensure label is always visible when there's content
+          }}
+        />
+        <SubmitButton type="submit" variant="contained" color="primary" fullWidth>
+          Submit
+        </SubmitButton>
+      </form>
+    </Box>
   );
 };
 
-export default ClientForm;
+export default ClientFormPage;

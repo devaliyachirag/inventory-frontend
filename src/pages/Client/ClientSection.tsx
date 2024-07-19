@@ -15,10 +15,8 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import ClientForm, { ClientFormData } from "./ClientForm";
-import { SubmitHandler } from "react-hook-form";
-import useAuthApi from "../../components/useApi";
 import { useNavigate } from "react-router-dom";
+import useAuthApi from "../../components/useApi";
 
 const TableSection = styled.div`
   flex: 1;
@@ -56,75 +54,18 @@ const NoDataMessage = styled.p`
 `;
 
 const ClientSection: React.FC<any> = () => {
-  const [open, setOpen] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [editClientId, setEditClientId] = useState<string | null>(null);
   const [clientList, setClientList] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [clientsPerPage] = useState(5);
-  const [defaultValues, setDefaultValues] = useState<ClientFormData | undefined>(undefined);
   const api = useAuthApi();
   const navigate = useNavigate();
 
   const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setEditMode(false);
-    setEditClientId(null);
-    setDefaultValues({
-      email: "",
-      name: "",
-      companyName: "",
-      companyEmail: "",
-      companyAddress: "",
-      gstNumber: "",
-    });
-  };
-
-  useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        const clientsData = await api('get', '/clients');
-        setClientList(clientsData);
-      } catch (error) {
-        console.error("Error fetching clients:", error);
-      }
-    };
-
-    fetchClients();
-  }, [api]);
-
-  const onSubmit: SubmitHandler<ClientFormData> = async (data: any) => {
-    try {
-      if (editMode && editClientId) {
-        await api('put', `/update-client/${editClientId}`, data);
-        handleClose();
-      } else {
-        await api('post', '/add-client', data);
-      }
-      const updatedClients = await api('get', '/clients');
-      setClientList(updatedClients);
-      handleClose();
-    } catch (error: any) {
-      if (error.response) {
-        alert(error.response.data.message);
-      } else {
-        alert("An error occurred. Please try again.");
-      }
-    }
+    navigate("/add-client");
   };
 
   const handleEdit = (clientId: string) => {
-    const clientToEdit = clientList.find((client) => client.id === clientId);
-    if (clientToEdit) {
-      setEditMode(true);
-      setEditClientId(clientId);
-      setDefaultValues(clientToEdit);
-      handleOpen();
-    }
+    navigate(`/edit-client/${clientId}`);
   };
 
   const handleDelete = async (clientId: string) => {
@@ -145,6 +86,19 @@ const ClientSection: React.FC<any> = () => {
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   };
+
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const clientsData = await api('get', '/clients');
+        setClientList(clientsData);
+      } catch (error) {
+        console.error("Error fetching clients:", error);
+      }
+    };
+
+    fetchClients();
+  }, [api]);
 
   const lastFiveClients = clientList.slice(-5);
   const currentClients = currentPage === 1 ? lastFiveClients : clientList.slice((currentPage - 1) * clientsPerPage, currentPage * clientsPerPage);
@@ -198,20 +152,14 @@ const ClientSection: React.FC<any> = () => {
         <Pagination
           count={Math.ceil(clientList.length / clientsPerPage)}
           page={currentPage}
+          color="primary"
           onChange={handlePageChange}
           style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}
         />
       )}
-      <Button variant="contained" color="primary" onClick={handleViewAllClients} style={{ marginTop: '20px' }}>
+      <Button variant="contained" color="primary" onClick={handleViewAllClients} style={{ display: 'block', margin: '20px auto 0'  }}>
         View All Clients
       </Button>
-      <ClientForm
-        open={open}
-        handleClose={handleClose}
-        onSubmit={onSubmit}
-        defaultValues={defaultValues}
-        editMode={editMode}
-      />
     </TableSection>
   );
 };

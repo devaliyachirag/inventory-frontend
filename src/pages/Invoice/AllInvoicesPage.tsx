@@ -1,12 +1,12 @@
+// src/components/AllInvoicesPage.tsx
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Pagination, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Pagination } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import VisibilityIcon from '@mui/icons-material/Visibility'; // Add this import
 import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
 import useAuthApi from '../../components/useApi';
+import InvoiceForm from './InvoiceForm';
 
 const TableSection = styled.div`
   flex: 1;
@@ -24,20 +24,6 @@ const SectionHeading = styled.h2`
   margin-bottom: 10px;
 `;
 
-const AddButton = styled.button`
-  padding: 5px 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
-  &:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
-  }
-`;
-
 const ActionCell = styled(TableCell)`
   display: flex;
   justify-content: flex-end;
@@ -48,13 +34,24 @@ const CenteredTableCell = styled(TableCell)`
   text-align: center; 
 `;
 
-const InvoiceSection: React.FC = () => {
+const AllInvoicesPage: React.FC = () => {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [clients, setClients] = useState<any[]>([]);
+  const [open, setOpen] = useState(false);
+  const [currentInvoice, setCurrentInvoice] = useState<any | null>(null);
   const [page, setPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
   const api = useAuthApi();
-  const navigate = useNavigate();
+
+  const handleOpen = (invoice?: any) => {
+    setCurrentInvoice(invoice || null);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setCurrentInvoice(null);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,7 +67,7 @@ const InvoiceSection: React.FC = () => {
     };
 
     fetchData();
-  }, [api]);
+  }, [api, open]);
 
   const getClientName = (clientId: string) => {
     const client = clients.find(client => client.id === clientId);
@@ -87,31 +84,19 @@ const InvoiceSection: React.FC = () => {
   };
 
   const handleEditInvoice = (invoice: any) => {
-    navigate(`/invoice-form/${invoice.id}`);
-  };
-
-  const handleViewInvoiceDetails = (invoice: any) => {
-    navigate(`/invoice-details/${invoice.id}`); // Navigate to the new details page
+    handleOpen(invoice);
   };
 
   const handleChangePage = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
 
-  const handleViewAllInvoices = () => {
-    navigate('/all-invoices');
-  };
-
-  // Calculate start and end index for the current page
-  const startIndex = (page - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const displayedInvoices = invoices.slice(startIndex, endIndex);
+  const displayedInvoices = invoices.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
     <TableSection>
       <SectionHeading>
-        Invoice List
-        <AddButton onClick={() => navigate("/invoice-form")}>Add Invoice</AddButton>
+        All Invoices
       </SectionHeading>
       <TableContainer component={Paper}>
         <Table>
@@ -145,12 +130,6 @@ const InvoiceSection: React.FC = () => {
                     >
                       <DeleteIcon />
                     </IconButton>
-                    <IconButton
-                      color="default"
-                      onClick={() => handleViewInvoiceDetails(invoice)}
-                    >
-                      <VisibilityIcon />
-                    </IconButton>
                   </ActionCell>
                 </TableRow>
               ))
@@ -164,27 +143,8 @@ const InvoiceSection: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      {
-        invoices.length > 5 ? (
-          <Pagination
-            count={Math.ceil(invoices.length / itemsPerPage)}
-            page={page}
-            onChange={handleChangePage}
-            color="primary"
-            sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}
-          />
-        ) : null
-      }
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleViewAllInvoices}
-        sx={{ display: 'block', margin: '20px auto 0' }}
-      >
-        View All Invoices
-      </Button>
     </TableSection>
   );
 };
 
-export default InvoiceSection;
+export default AllInvoicesPage;
