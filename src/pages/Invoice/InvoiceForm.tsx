@@ -343,13 +343,13 @@ const InvoiceFormPage: React.FC = () => {
             </Grid>
           </Grid>
         ))}
-        <Button variant="outlined" onClick={addItem} fullWidth>
+        <Button variant="outlined"  onClick={addItem} fullWidth>
           Add Item
         </Button>
         <Button
           type="submit"
           variant="contained"
-          color="primary"
+          sx={{ background: "rgba(43, 43, 196, 1)" }}
           fullWidth
           style={{ marginTop: "20px" }}
         >

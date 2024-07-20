@@ -30,13 +30,13 @@ const SectionHeading = styled.h2`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 20px;
+  font-size: 25px;
   margin-bottom: 10px;
 `;
 
 const AddButton = styled.button`
-  padding: 5px 10px;
-  background-color: #007bff;
+  padding: 15px 20px;
+  background-color:  rgba(43, 43, 196, 1);
   color: white;
   border: none;
   border-radius: 5px;
@@ -51,6 +51,18 @@ const AddButton = styled.button`
 const NoDataMessage = styled.p`
   color: #888;
   font-size: 16px;
+  text-align: center;
+`;
+
+const CenteredTableCell = styled(TableCell)`
+  text-align: center;
+`;
+
+const BoldTableCell = styled(TableCell)`
+  font-weight: bold;
+  text-align: center;
+  font-size:18px;
+  color:white;
 `;
 
 const ClientSection: React.FC<any> = () => {
@@ -106,43 +118,43 @@ const ClientSection: React.FC<any> = () => {
   return (
     <TableSection>
       <SectionHeading>
-        Client
+        CLIENT LIST
         <AddButton onClick={handleOpen}>Add Client</AddButton>
       </SectionHeading>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Company Name</TableCell>
-              <TableCell>Company Email</TableCell>
-              <TableCell>GST Number</TableCell>
-              <TableCell>Action</TableCell>
+            <TableRow sx={{background:"linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(43, 43, 196, 1) 35%, rgba(0, 212, 255, 1) 100%)"}}>
+              <BoldTableCell>Name</BoldTableCell>
+              <BoldTableCell>Company Name</BoldTableCell>
+              <BoldTableCell>Company Email</BoldTableCell>
+              <BoldTableCell>GST Number</BoldTableCell>
+              <BoldTableCell>Action</BoldTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {currentClients.length > 0 ? (
               currentClients.map((client) => (
                 <TableRow key={client.id}>
-                  <TableCell>{client.name}</TableCell>
-                  <TableCell>{client.companyName}</TableCell>
-                  <TableCell>{client.companyEmail}</TableCell>
-                  <TableCell>{client.gstNumber}</TableCell>
-                  <TableCell>
-                    <IconButton color="primary" onClick={() => handleEdit(client.id)}>
+                  <CenteredTableCell>{client.name}</CenteredTableCell>
+                  <CenteredTableCell>{client.companyName}</CenteredTableCell>
+                  <CenteredTableCell>{client.companyEmail}</CenteredTableCell>
+                  <CenteredTableCell>{client.gstNumber}</CenteredTableCell>
+                  <CenteredTableCell>
+                    <IconButton sx={{ color: "rgba(43, 43, 196, 1)" }} onClick={() => handleEdit(client.id)}>
                       <EditIcon />
                     </IconButton>
-                    <IconButton color="secondary" onClick={() => handleDelete(client.id)}>
+                    <IconButton sx={{ color: "rgba(0, 212, 255, 1)" }} onClick={() => handleDelete(client.id)}>
                       <DeleteIcon />
                     </IconButton>
-                  </TableCell>
+                  </CenteredTableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} align="center">
-                  No Clients found
-                </TableCell>
+                <CenteredTableCell colSpan={5}>
+                  <NoDataMessage>No Clients found</NoDataMessage>
+                </CenteredTableCell>
               </TableRow>
             )}
           </TableBody>
@@ -152,12 +164,12 @@ const ClientSection: React.FC<any> = () => {
         <Pagination
           count={Math.ceil(clientList.length / clientsPerPage)}
           page={currentPage}
-          color="primary"
+          // color="primary"
           onChange={handlePageChange}
-          style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}
+          style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', }}
         />
       )}
-      <Button variant="contained" color="primary" onClick={handleViewAllClients} style={{ display: 'block', margin: '20px auto 0'  }}>
+      <Button variant="contained" sx={{background: "rgba(43, 43, 196, 1)"}} onClick={handleViewAllClients} >
         View All Clients
       </Button>
     </TableSection>

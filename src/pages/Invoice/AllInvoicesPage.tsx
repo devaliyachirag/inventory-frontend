@@ -1,12 +1,11 @@
-// src/components/AllInvoicesPage.tsx
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Pagination } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Pagination, Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { format } from 'date-fns';
 import useAuthApi from '../../components/useApi';
-import InvoiceForm from './InvoiceForm';
+import { useNavigate } from 'react-router-dom';
 
 const TableSection = styled.div`
   flex: 1;
@@ -14,43 +13,63 @@ const TableSection = styled.div`
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height:100vh;
 `;
 
-const SectionHeading = styled.h2`
+const SectionHeading = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
-  font-size: 20px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+`;
+
+const HeadingText = styled.h2`
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+`;
+
+const StyledTableCell = styled(TableCell)`
+  text-align: center;
+  padding: 16px;
+`;
+
+const TableHeadCell = styled(TableCell)`
+  font-weight: bold;
+  text-align: center;
+  padding: 16px;
+  background-color: #f0f2f5;
 `;
 
 const ActionCell = styled(TableCell)`
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 8px;
+  align-items: center;
 `;
 
-const CenteredTableCell = styled(TableCell)`
-  text-align: center; 
+const StripedTableRow = styled(TableRow) <{ isOdd: boolean }>`
+  background-color: ${({ isOdd }) => (isOdd ? '#f9f9f9' : '#ffffff')};
+`;
+
+const BackButton = styled(Button)`
+  background-color: rgba(43, 43, 196, 1);
+  color: white;
+  &:hover {
+    background-color: #0056b3;
+  }
 `;
 
 const AllInvoicesPage: React.FC = () => {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [clients, setClients] = useState<any[]>([]);
-  const [open, setOpen] = useState(false);
-  const [currentInvoice, setCurrentInvoice] = useState<any | null>(null);
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
   const api = useAuthApi();
+  const navigate = useNavigate();
 
-  const handleOpen = (invoice?: any) => {
-    setCurrentInvoice(invoice || null);
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setCurrentInvoice(null);
+  const handleBack = () => {
+    navigate('/'); // Navigate to the previous or desired page
   };
 
   useEffect(() => {
@@ -67,7 +86,7 @@ const AllInvoicesPage: React.FC = () => {
     };
 
     fetchData();
-  }, [api, open]);
+  }, [api]);
 
   const getClientName = (clientId: string) => {
     const client = clients.find(client => client.id === clientId);
@@ -84,60 +103,61 @@ const AllInvoicesPage: React.FC = () => {
   };
 
   const handleEditInvoice = (invoice: any) => {
-    handleOpen(invoice);
+    // Handle editing invoice functionality here
   };
 
-  const handleChangePage = (event: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
-  };
+  // const handleChangePage = (event: React.ChangeEvent<unknown>, value: number) => {
+  //   setPage(value);
+  // };
 
   const displayedInvoices = invoices.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
     <TableSection>
       <SectionHeading>
-        All Invoices
+        <HeadingText>All Invoices</HeadingText>
+        <BackButton onClick={handleBack}>Back</BackButton>
       </SectionHeading>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow>
-              <CenteredTableCell>Invoice Date</CenteredTableCell>
-              <CenteredTableCell>Invoice Number</CenteredTableCell>
-              <CenteredTableCell>Client</CenteredTableCell>
-              <CenteredTableCell>Due Date</CenteredTableCell>
-              <CenteredTableCell>Action</CenteredTableCell>
+            <TableRow >
+              <TableHeadCell>Invoice Date</TableHeadCell>
+              <TableHeadCell>Invoice Number</TableHeadCell>
+              <TableHeadCell>Client</TableHeadCell>
+              <TableHeadCell>Due Date</TableHeadCell>
+              <TableHeadCell>Action</TableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {displayedInvoices.length > 0 ? (
-              displayedInvoices.map((invoice) => (
-                <TableRow key={invoice.id}>
-                  <CenteredTableCell>{format(new Date(invoice.invoiceDate), 'dd/MM/yyyy')}</CenteredTableCell>
-                  <CenteredTableCell>{invoice.invoiceNumber}</CenteredTableCell>
-                  <CenteredTableCell>{getClientName(invoice.clientId)}</CenteredTableCell>
-                  <CenteredTableCell>{format(new Date(invoice.invoiceDueDate), 'dd/MM/yyyy')}</CenteredTableCell>
+              displayedInvoices.map((invoice, index) => (
+                <StripedTableRow key={invoice.id} isOdd={index % 2 === 0}>
+                  <StyledTableCell>{format(new Date(invoice.invoiceDate), 'dd/MM/yyyy')}</StyledTableCell>
+                  <StyledTableCell>{invoice.invoiceNumber}</StyledTableCell>
+                  <StyledTableCell>{getClientName(invoice.clientId)}</StyledTableCell>
+                  <StyledTableCell>{format(new Date(invoice.invoiceDueDate), 'dd/MM/yyyy')}</StyledTableCell>
                   <ActionCell>
                     <IconButton
-                      color="primary"
+                      sx={{ color: "rgba(43, 43, 196, 1)" }}
                       onClick={() => handleEditInvoice(invoice)}
                     >
                       <EditIcon />
                     </IconButton>
                     <IconButton
-                      color="secondary"
+                      sx={{ color: "rgba(0, 212, 255, 1)" }}
                       onClick={() => handleDeleteInvoice(invoice.id)}
                     >
                       <DeleteIcon />
                     </IconButton>
                   </ActionCell>
-                </TableRow>
+                </StripedTableRow>
               ))
             ) : (
               <TableRow>
-                <CenteredTableCell colSpan={5}>
+                <StyledTableCell colSpan={5}>
                   No invoices found
-                </CenteredTableCell>
+                </StyledTableCell>
               </TableRow>
             )}
           </TableBody>

@@ -149,7 +149,7 @@ const ClientFormPage: React.FC = () => {
             shrink: true, // Ensure label is always visible when there's content
           }}
         />
-        <SubmitButton type="submit" variant="contained" color="primary" fullWidth>
+        <SubmitButton type="submit" variant="contained" sx={{ background: "rgba(43, 43, 196, 1)" }} fullWidth>
           Submit
         </SubmitButton>
       </form>

@@ -2,12 +2,15 @@
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import styled from "@emotion/styled";
-import axiosInstance from '../../components/axiosInstance';
 import { useNavigate } from 'react-router-dom';
+import { Snackbar, Alert } from '@mui/material';
+import axiosInstance from '../../components/axiosInstance';
+
 const InputWrapper = styled.div`
   position: relative;
   width: 100%;
 `;
+
 const Input = styled.input`
   width: 100%;
   padding: 15px;
@@ -59,87 +62,107 @@ const Button = styled.button`
   }
 `;
 
-const ErrorMessage = styled.p`
-  color: red;
-  font-size: 14px;
-  margin: 0;
-`;
 const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 20px;
 `;
+
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 14px;
+  margin: 0;
+`;
+
 interface ILoginInput {
   email: string;
   password: string;
 }
 
-const LoginForm: React.FC= () => {
+const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ILoginInput>();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const onSubmit: SubmitHandler<ILoginInput> = async (data) => {
     try {
-      const response = await axiosInstance.post("/login", data);;
+      const response = await axiosInstance.post("/login", data);
       localStorage.setItem('token', response.data.token);
+      navigate('/');
     } catch (error: any) {
       if (error.response) {
-        alert(error.response.data.message);
+        setErrorMessage(error.response.data.message);
       } else {
-        alert("An error occurred. Please try again.");
+        setErrorMessage("An error occurred. Please try again.");
       }
     }
-    navigate('/');
   };
-  const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
+  const handleCloseSnackbar = () => {
+    setErrorMessage(null);
+  };
+
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
-      <InputWrapper>
-        <Input
-          type="email"
-          placeholder="Email"
-          {...register("email", {
-            pattern: {
-              value:
-                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-              message: "Invalid email pattern",
-            },
-            required: {
-              value: true,
-              message: "Email is required",
-            },
-          })}
-        />
-        {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
-      </InputWrapper>
-      <InputWrapper>
-        <Input
-          type={showPassword ? "text" : "password"}
-          placeholder="Password"
-          {...register("password", {
-            required: {
-              value: true,
-              message: "Please enter the password",
-            },
-          })}
-        />
-        <ToggleButton type="button" onClick={togglePasswordVisibility}>
-          {errors.password?.message ? null : showPassword ? "hide" : "show"}
-        </ToggleButton>
-        {errors.password && (
-          <ErrorMessage>{errors.password.message}</ErrorMessage>
-        )}
-      </InputWrapper>
-      <Button type="submit">Login</Button>
-    </Form>
+    <>
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <InputWrapper>
+          <Input
+            type="email"
+            placeholder="Email"
+            {...register("email", {
+              pattern: {
+                value:
+                  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                message: "Invalid email pattern",
+              },
+              required: {
+                value: true,
+                message: "Email is required",
+              },
+            })}
+          />
+          {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
+        </InputWrapper>
+        <InputWrapper>
+          <Input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            {...register("password", {
+              required: {
+                value: true,
+                message: "Please enter the password",
+              },
+            })}
+          />
+          <ToggleButton type="button" onClick={togglePasswordVisibility}>
+            {errors.password?.message ? null : showPassword ? "hide" : "show"}
+          </ToggleButton>
+          {errors.password && (
+            <ErrorMessage>{errors.password.message}</ErrorMessage>
+          )}
+        </InputWrapper>
+        <Button type="submit">Login</Button>
+      </Form>
+      <Snackbar
+        open={Boolean(errorMessage)}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

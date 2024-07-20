@@ -1,10 +1,10 @@
-// src/components/AllClients.tsx
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton,Button } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import useAuthApi from "../../components/useApi";
+import { useNavigate } from "react-router-dom";
 
 const TableSection = styled.div`
   flex: 1;
@@ -12,17 +12,60 @@ const TableSection = styled.div`
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: 100vh;
 `;
 
 const SectionHeading = styled.h2`
-  font-size: 20px;
-  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+`;
+
+const StyledTableCell = styled(TableCell)`
+  text-align: center;
+  padding: 16px;
+`;
+
+const ActionCell = styled(TableCell)`
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  align-items: center;
+`;
+
+const TableHeadCell = styled(TableCell)`
+  font-weight: bold;
+  text-align: center;
+  padding: 16px;
+`;
+const HeadingText = styled.h2`
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+`;
+const BackButton = styled(Button)`
+  background-color: rgba(43, 43, 196, 1);
+  color: white;
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
+
+const StripedTableRow = styled(TableRow)<{ isOdd: boolean }>`
+  background-color: ${({ isOdd }) => (isOdd ? '#f9f9f9' : '#ffffff')};
 `;
 
 const AllClients: React.FC<any> = () => {
   const [clientList, setClientList] = useState<any[]>([]);
   const api = useAuthApi();
-
+  const navigate = useNavigate();
+  const handleBack = () => {
+    navigate('/'); // Navigate to the previous or desired page
+  };
   useEffect(() => {
     const fetchClients = async () => {
       try {
@@ -53,41 +96,42 @@ const AllClients: React.FC<any> = () => {
 
   return (
     <TableSection>
-      <SectionHeading>All Clients</SectionHeading>
+      <SectionHeading>
+        <HeadingText>All Clients</HeadingText>
+        <BackButton onClick={handleBack}>Back</BackButton>
+      </SectionHeading>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Company Name</TableCell>
-              <TableCell>Company Email</TableCell>
-              <TableCell>GST Number</TableCell>
-              <TableCell>Action</TableCell>
+              <TableHeadCell>Name</TableHeadCell>
+              <TableHeadCell>Company Name</TableHeadCell>
+              <TableHeadCell>Company Email</TableHeadCell>
+              <TableHeadCell>GST Number</TableHeadCell>
+              <TableHeadCell>Action</TableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {clientList.length > 0 ? (
-              clientList.map((client) => (
-                <TableRow key={client.id}>
-                  <TableCell>{client.name}</TableCell>
-                  <TableCell>{client.companyName}</TableCell>
-                  <TableCell>{client.companyEmail}</TableCell>
-                  <TableCell>{client.gstNumber}</TableCell>
-                  <TableCell>
-                    <IconButton color="primary" onClick={() => handleEdit(client.id)}>
+              clientList.map((client, index) => (
+                <StripedTableRow key={client.id} isOdd={index % 2 === 0}>
+                  <StyledTableCell>{client.name}</StyledTableCell>
+                  <StyledTableCell>{client.companyName}</StyledTableCell>
+                  <StyledTableCell>{client.companyEmail}</StyledTableCell>
+                  <StyledTableCell>{client.gstNumber}</StyledTableCell>
+                  <ActionCell>
+                    <IconButton  sx={{ color: "rgba(43, 43, 196, 1)" }} onClick={() => handleEdit(client.id)}>
                       <EditIcon />
                     </IconButton>
-                    <IconButton color="secondary" onClick={() => handleDelete(client.id)}>
+                    <IconButton sx={{ color: "rgba(0, 212, 255, 1)" }} onClick={() => handleDelete(client.id)}>
                       <DeleteIcon />
                     </IconButton>
-                  </TableCell>
-                </TableRow>
+                  </ActionCell>
+                </StripedTableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} align="center">
-                  No Clients found
-                </TableCell>
+                <StyledTableCell colSpan={5}>No Clients found</StyledTableCell>
               </TableRow>
             )}
           </TableBody>

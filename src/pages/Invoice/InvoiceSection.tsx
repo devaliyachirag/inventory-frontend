@@ -20,13 +20,13 @@ const SectionHeading = styled.h2`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 20px;
+  font-size: 25px;
   margin-bottom: 10px;
 `;
 
 const AddButton = styled.button`
-  padding: 5px 10px;
-  background-color: #007bff;
+  padding: 15px 20px;
+  background-color: rgba(43, 43, 196, 1);
   color: white;
   border: none;
   border-radius: 5px;
@@ -40,12 +40,20 @@ const AddButton = styled.button`
 
 const ActionCell = styled(TableCell)`
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 8px;
+  align-items: center;
 `;
 
 const CenteredTableCell = styled(TableCell)`
   text-align: center; 
+`;
+
+const TableHeadCell = styled(TableCell)`
+  font-weight: bold;
+  text-align: center;
+  font-size:18px;
+  color:white;
 `;
 
 const InvoiceSection: React.FC = () => {
@@ -110,43 +118,43 @@ const InvoiceSection: React.FC = () => {
   return (
     <TableSection>
       <SectionHeading>
-        Invoice List
+        INVOICE LIST
         <AddButton onClick={() => navigate("/invoice-form")}>Add Invoice</AddButton>
       </SectionHeading>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow>
-              <CenteredTableCell>Invoice Date</CenteredTableCell>
-              <CenteredTableCell>Invoice Number</CenteredTableCell>
-              <CenteredTableCell>Client</CenteredTableCell>
-              <CenteredTableCell>Due Date</CenteredTableCell>
-              <CenteredTableCell>Action</CenteredTableCell>
+            <TableRow sx={{background:"linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(43, 43, 196, 1) 35%, rgba(0, 212, 255, 1) 100%)"}}>
+              <TableHeadCell>Client</TableHeadCell>
+              <TableHeadCell>Invoice Date</TableHeadCell>
+              <TableHeadCell>Invoice Number</TableHeadCell>
+              <TableHeadCell>Due Date</TableHeadCell>
+              <TableHeadCell>Action</TableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {displayedInvoices.length > 0 ? (
               displayedInvoices.map((invoice) => (
-                <TableRow key={invoice.id}>
+                <TableRow key={invoice.id } >
+                  <CenteredTableCell>{getClientName(invoice.clientId)}</CenteredTableCell>
                   <CenteredTableCell>{format(new Date(invoice.invoiceDate), 'dd/MM/yyyy')}</CenteredTableCell>
                   <CenteredTableCell>{invoice.invoiceNumber}</CenteredTableCell>
-                  <CenteredTableCell>{getClientName(invoice.clientId)}</CenteredTableCell>
                   <CenteredTableCell>{format(new Date(invoice.invoiceDueDate), 'dd/MM/yyyy')}</CenteredTableCell>
                   <ActionCell>
                     <IconButton
-                      color="primary"
+                      sx={{ color: "rgba(43, 43, 196, 1)" }}
                       onClick={() => handleEditInvoice(invoice)}
                     >
                       <EditIcon />
                     </IconButton>
                     <IconButton
-                      color="secondary"
+                      sx={{ color: "rgba(0, 212, 255, 1)" }}
                       onClick={() => handleDeleteInvoice(invoice.id)}
                     >
                       <DeleteIcon />
                     </IconButton>
                     <IconButton
-                      color="default"
+                      sx={{ color: "rgba(43, 43, 196, 1)" }}
                       onClick={() => handleViewInvoiceDetails(invoice)}
                     >
                       <VisibilityIcon />
@@ -170,7 +178,6 @@ const InvoiceSection: React.FC = () => {
             count={Math.ceil(invoices.length / itemsPerPage)}
             page={page}
             onChange={handleChangePage}
-            color="primary"
             sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}
           />
         ) : null
@@ -179,7 +186,7 @@ const InvoiceSection: React.FC = () => {
         variant="contained"
         color="primary"
         onClick={handleViewAllInvoices}
-        sx={{ display: 'block', margin: '20px auto 0' }}
+        sx={{ background: "rgba(43, 43, 196, 1)" }}
       >
         View All Invoices
       </Button>
