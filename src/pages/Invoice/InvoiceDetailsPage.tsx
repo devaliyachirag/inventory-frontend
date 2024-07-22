@@ -104,11 +104,13 @@ const InvoiceDetailsPage: React.FC = () => {
             <Button
               variant="contained"
               color="primary"
+              id="printPageButton2"
               onClick={() => window.history.back()}
             >
               Back
             </Button>
             <Button
+              id="printPageButton"
               variant="contained"
               color="secondary"
               onClick={handlePrint}

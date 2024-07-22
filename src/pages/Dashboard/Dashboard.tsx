@@ -1,7 +1,6 @@
-// src/components/HomePage.tsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { AppBar, Tabs, Tab, Toolbar, Typography, Button, Box, Paper } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { AppBar, Tabs, Tab, Toolbar, Typography, Button, Paper } from "@mui/material";
 import styled from "@emotion/styled";
 import ClientSection from "../Client/ClientSection";
 import InvoiceSection from "../Invoice/InvoiceSection";
@@ -14,7 +13,7 @@ const Container = styled.div`
 
 const StyledAppBar = styled(AppBar)`
   background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(43, 43, 196, 1) 35%, rgba(0, 212, 255, 1) 100%);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  // box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 `;
 
 const StyledToolbar = styled(Toolbar)`
@@ -53,13 +52,15 @@ const StyledTabs = styled(Tabs)`
 const StyledTabPanel = styled(Paper)`
   padding: 20px;
   margin-top: 20px;
-  border-radius: 8px;
+  border-radius: 8px;   
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 `;
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState(0);
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(parseInt(searchParams.get("tab") || "0", 10));
 
   const handleLogout = () => {
     localStorage.clear();
@@ -68,7 +69,13 @@ const Dashboard: React.FC = () => {
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setActiveTab(newValue);
+    setSearchParams({ tab: newValue.toString() });
   };
+
+  useEffect(() => {
+    const tabParam = parseInt(searchParams.get("tab") || "0", 10);
+    setActiveTab(tabParam);
+  }, [searchParams]);
 
   return (
     <>

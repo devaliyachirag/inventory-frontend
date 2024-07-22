@@ -64,7 +64,7 @@ const AllClients: React.FC<any> = () => {
   const api = useAuthApi();
   const navigate = useNavigate();
   const handleBack = () => {
-    navigate('/'); // Navigate to the previous or desired page
+    navigate(-1); 
   };
   useEffect(() => {
     const fetchClients = async () => {
@@ -80,7 +80,7 @@ const AllClients: React.FC<any> = () => {
   }, [api]);
 
   const handleEdit = (clientId: string) => {
-    // Implement edit functionality
+    navigate(`/edit-client/${clientId}`);
   };
 
   const handleDelete = async (clientId: string) => {
@@ -130,7 +130,7 @@ const AllClients: React.FC<any> = () => {
                 </StripedTableRow>
               ))
             ) : (
-              <TableRow>
+              <TableRow>  
                 <StyledTableCell colSpan={5}>No Clients found</StyledTableCell>
               </TableRow>
             )}

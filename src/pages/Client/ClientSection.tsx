@@ -164,12 +164,11 @@ const ClientSection: React.FC<any> = () => {
         <Pagination
           count={Math.ceil(clientList.length / clientsPerPage)}
           page={currentPage}
-          // color="primary"
           onChange={handlePageChange}
           style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', }}
         />
       )}
-      <Button variant="contained" sx={{background: "rgba(43, 43, 196, 1)"}} onClick={handleViewAllClients} >
+      <Button variant="contained" sx={{background: "rgba(43, 43, 196, 1)",marginTop:'50px'}} onClick={handleViewAllClients} >
         View All Clients
       </Button>
     </TableSection>

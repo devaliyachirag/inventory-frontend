@@ -10,27 +10,18 @@ import {
   InputLabel,
   FormHelperText,
   Grid,
-  InputAdornment,
+  IconButton,
 } from "@mui/material";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import styled from "@emotion/styled";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import {
+  useForm,
+  SubmitHandler,
+  Controller,
+  useFieldArray,
+} from "react-hook-form";
+import DatePickerComponent from "../../components/DatePickerComponent";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate, useParams } from "react-router-dom";
 import useAuthApi from "../../components/useApi";
-
-const DatePickerWrapper = styled.div`
-  .react-datepicker-wrapper {
-    width: 100%;
-  }
-  .react-datepicker__input-container {
-    width: 100%;
-  }
-  .react-datepicker__input-container input {
-    padding-right: 40px; /* Space for the icon */
-  }
-`;
 
 const formStyle = {
   maxWidth: 600,
@@ -45,13 +36,6 @@ const formStyle = {
   gap: 2,
 };
 
-const IconWrapper = styled.div`
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  cursor: pointer;
-`;
-
 export type InvoiceFormData = {
   invoiceDate: Date | null;
   invoiceNumber: string;
@@ -63,7 +47,7 @@ export type InvoiceFormData = {
 const InvoiceFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const api = useAuthApi(); // Use the custom hook
+  const api = useAuthApi();
   const {
     control,
     handleSubmit,
@@ -76,8 +60,15 @@ const InvoiceFormPage: React.FC = () => {
       items: [{ name: "", amount: 0, quantity: 0, total: 0 }],
     },
   });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "items",
+  });
+
   const [clientList, setClientList] = useState<any[]>([]);
   const [invoice, setInvoice] = useState<any | null>(null);
+  const [totalAmount, setTotalAmount] = useState<number>(0);
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -118,49 +109,42 @@ const InvoiceFormPage: React.FC = () => {
 
   const items = watch("items");
 
-  const handleItemChange = (
-    index: number,
-    field: string,
-    value: string | number
-  ) => {
-    const updatedItems = items.map((item, i) => {
-      if (i === index) {
-        const updatedItem = { ...item, [field]: value };
-        updatedItem.total = updatedItem.amount * updatedItem.quantity;
-        return updatedItem;
-      }
-      return item;
-    });
-    setValue("items", updatedItems);
-  };
+  useEffect(() => {
+    const calculateTotalAmount = () => {
+      const total = items.reduce(
+        (acc, item) => acc + item.amount * item.quantity,
+        0
+      );
+      setTotalAmount(total);
+    };
+
+    calculateTotalAmount();
+  }, [items]);
 
   const addItem = () => {
-    const newItem = { name: "", amount: 0, quantity: 0, total: 0 };
-    setValue("items", [...items, newItem]);
+    append({ name: "", amount: 0, quantity: 0, total: 0 });
   };
 
-  const handleDelete = async () => {
-    if (invoice) {
-      try {
-        await api("DELETE", `/delete-invoice/${invoice.id}`);
-        navigate("/");
-      } catch (error) {
-        console.error("Error deleting invoice:", error);
-      }
-    }
+  const handleDeleteItem = (index: number) => {
+    remove(index);
   };
 
-  const onSubmit: SubmitHandler<InvoiceFormData> = async (data:any) => {
+  const onSubmit: SubmitHandler<InvoiceFormData> = async (data: any) => {
     try {
       if (invoice) {
         await api("PUT", `/update-invoice/${invoice.id}`, data);
       } else {
         await api("POST", "/add-invoice", data);
       }
-      navigate("/");
+      navigate(-1);
     } catch (error) {
       console.error("Error submitting invoice:", error);
     }
+  };
+
+  const validateFirstItem = () => {
+    const firstItem = items[items.length - 1] || {};
+    return firstItem.name && firstItem.amount > 0 && firstItem.quantity > 0;
   };
 
   return (
@@ -176,37 +160,13 @@ const InvoiceFormPage: React.FC = () => {
               control={control}
               defaultValue={null}
               render={({ field }) => (
-                <DatePickerWrapper>
-                  <DatePicker
-                    selected={field.value}
-                    onChange={(date: Date | null) => field.onChange(date)}
-                    dateFormat="dd/MM/yyyy"
-                    placeholderText="Select invoice date"
-                    customInput={
-                      <TextField
-                        fullWidth
-                        margin="normal"
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconWrapper>
-                                <CalendarTodayIcon />
-                              </IconWrapper>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    }
-                    className={`form-control ${
-                      errors.invoiceDate ? "is-invalid" : ""
-                    }`}
-                  />
-                  {errors.invoiceDate && (
-                    <p className="text-danger">
-                      {errors.invoiceDate.message}
-                    </p>
-                  )}
-                </DatePickerWrapper>
+                <DatePickerComponent
+                  selected={field.value}
+                  onChange={(date: Date | null) => field.onChange(date)}
+                  label="Invoice Date"
+                  error={!!errors.invoiceDate}
+                  helperText={errors.invoiceDate?.message}
+                />
               )}
               rules={{ required: "Invoice Date is required" }}
             />
@@ -217,37 +177,13 @@ const InvoiceFormPage: React.FC = () => {
               control={control}
               defaultValue={null}
               render={({ field }) => (
-                <DatePickerWrapper>
-                  <DatePicker
-                    selected={field.value}
-                    onChange={(date: Date | null) => field.onChange(date)}
-                    dateFormat="dd/MM/yyyy"
-                    placeholderText="Select due date"
-                    customInput={
-                      <TextField
-                        fullWidth
-                        margin="normal"
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconWrapper>
-                                <CalendarTodayIcon />
-                              </IconWrapper>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    }
-                    className={`form-control ${
-                      errors.invoiceDueDate ? "is-invalid" : ""
-                    }`}
-                  />
-                  {errors.invoiceDueDate && (
-                    <p className="text-danger">
-                      {errors.invoiceDueDate.message}
-                    </p>
-                  )}
-                </DatePickerWrapper>
+                <DatePickerComponent
+                  selected={field.value}
+                  onChange={(date: Date | null) => field.onChange(date)}
+                  label="Due Date"
+                  error={!!errors.invoiceDueDate}
+                  helperText={errors.invoiceDueDate?.message}
+                />
               )}
               rules={{ required: "Invoice Due Date is required" }}
             />
@@ -290,45 +226,62 @@ const InvoiceFormPage: React.FC = () => {
           )}
           rules={{ required: "Client is required" }}
         />
-        {items.map((item, index) => (
-          <Grid container spacing={2} key={index}>
+        {fields.map((item, index) => (
+          <Grid container spacing={2} key={item.id}>
             <Grid item xs={4}>
-              <TextField
-                label="Item Name"
-                fullWidth
-                margin="normal"
-                value={item.name}
-                onChange={(e) =>
-                  handleItemChange(index, "name", e.target.value)
-                }
+              <Controller
+                name={`items.${index}.name`}
+                control={control}
+                defaultValue={item.name}
+                render={({ field }) => (
+                  <TextField
+                    label="Item Name"
+                    fullWidth
+                    margin="normal"
+                    {...field}
+                    error={!!errors.items?.[index]?.name}
+                    helperText={errors.items?.[index]?.name?.message}
+                  />
+                )}
+                rules={{ required: "Item Name is required" }}
               />
             </Grid>
             <Grid item xs={2}>
-              <TextField
-                label="Amount"
-                type="number"
-                fullWidth
-                margin="normal"
-                value={item.amount}
-                onChange={(e) =>
-                  handleItemChange(index, "amount", parseFloat(e.target.value))
-                }
+              <Controller
+                name={`items.${index}.amount`}
+                control={control}
+                defaultValue={item.amount}
+                render={({ field }) => (
+                  <TextField
+                    label="Amount"
+                    type="number"
+                    fullWidth
+                    margin="normal"
+                    {...field}
+                    error={!!errors.items?.[index]?.amount}
+                    helperText={errors.items?.[index]?.amount?.message}
+                  />
+                )}
+                rules={{ required: "Amount is required", min: 1 }}
               />
             </Grid>
             <Grid item xs={2}>
-              <TextField
-                label="Quantity"
-                type="number"
-                fullWidth
-                margin="normal"
-                value={item.quantity}
-                onChange={(e) =>
-                  handleItemChange(
-                    index,
-                    "quantity",
-                    parseFloat(e.target.value)
-                  )
-                }
+              <Controller
+                name={`items.${index}.quantity`}
+                control={control}
+                defaultValue={item.quantity}
+                render={({ field }) => (
+                  <TextField
+                    label="Quantity"
+                    type="number"
+                    fullWidth
+                    margin="normal"
+                    {...field}
+                    error={!!errors.items?.[index]?.quantity}
+                    helperText={errors.items?.[index]?.quantity?.message}
+                  />
+                )}
+                rules={{ required: "Quantity is required", min: 1 }}
               />
             </Grid>
             <Grid item xs={2}>
@@ -337,13 +290,31 @@ const InvoiceFormPage: React.FC = () => {
                 type="number"
                 fullWidth
                 margin="normal"
-                value={item.total}
+                value={item.amount * item.quantity}
                 disabled
               />
             </Grid>
+            <Grid item xs={2}>
+              <IconButton
+                aria-label="delete"
+                color="secondary"
+                style={{ margin: "20px 0" }}
+                onClick={() => handleDeleteItem(index)}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Grid>
           </Grid>
         ))}
-        <Button variant="outlined"  onClick={addItem} fullWidth>
+        <Typography variant="h6" style={{ marginTop: "20px" }}>
+          Total Amount: {totalAmount}
+        </Typography>
+        <Button
+          variant="outlined"
+          onClick={addItem}
+          fullWidth
+          disabled={!validateFirstItem()}
+        >
           Add Item
         </Button>
         <Button
@@ -355,17 +326,6 @@ const InvoiceFormPage: React.FC = () => {
         >
           {invoice ? "Update Invoice" : "Submit"}
         </Button>
-        {invoice && (
-          <Button
-            variant="outlined"
-            color="error"
-            fullWidth
-            onClick={handleDelete}
-            style={{ marginTop: "20px" }}
-          >
-            Delete Invoice
-          </Button>
-        )}
       </form>
     </Box>
   );

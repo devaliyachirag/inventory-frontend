@@ -1,3 +1,4 @@
+import { jwtDecode } from "jwt-decode";
 import { ReactNode, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -9,7 +10,24 @@ const PrivateRoute = ({ children }: ProtectedPageProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
+  useEffect(() => {
+    if (token) {
+      try {
+        const decodedToken: any = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+        if (decodedToken.exp < currentTime) {
+          localStorage.removeItem("token");
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error("Invalid token", error);
+        localStorage.removeItem("token");
+        navigate("/login");
+      }
+    } else if (location.pathname !== "/login") {
+      navigate("/login");
+    }
+  }, [token, navigate, location.pathname]); 
   useEffect(() => {
     if (!token && location.pathname !== "/login") {
       navigate("/login");
@@ -31,8 +49,6 @@ const PrivateRoute = ({ children }: ProtectedPageProps) => {
 
 export default PrivateRoute;
 
-
-// import { jwtDecode } from "jwt-decode";
 // import { ReactNode, useEffect } from "react";
 // import { useLocation, useNavigate } from "react-router-dom";
 
@@ -44,25 +60,6 @@ export default PrivateRoute;
 //   const location = useLocation();
 //   const navigate = useNavigate();
 //   const token = localStorage.getItem("token");
-
-//   useEffect(() => {
-//     if (token) {
-//       try {
-//         const decodedToken: any = jwtDecode(token);
-//         const currentTime = Date.now() / 1000;
-//         if (decodedToken.exp < currentTime) {
-//           localStorage.removeItem("token");
-//           navigate("/login");
-//         }
-//       } catch (error) {
-//         console.error("Invalid token", error);
-//         localStorage.removeItem("token");
-//         navigate("/login");
-//       }
-//     } else if (location.pathname !== "/login") {
-//       navigate("/login");
-//     }
-//   }, [token, navigate, location.pathname]);
 
 //   if (
 //     (!token && location.pathname !== "/login") ||

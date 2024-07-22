@@ -64,7 +64,8 @@ const ClientFormPage: React.FC = () => {
     try {
       if (id) {
         await api('put', `/update-client/${id}`, data);
-      } else {
+      } 
+      else {
         await api('post', '/add-client', data);
       }
       navigate('/');
@@ -91,7 +92,7 @@ const ClientFormPage: React.FC = () => {
           error={!!errors.email}
           helperText={errors.email?.message}
           InputLabelProps={{
-            shrink: true, // Ensure label is always visible when there's content
+            shrink: true, 
           }}
         />
         <TextField
@@ -102,7 +103,7 @@ const ClientFormPage: React.FC = () => {
           error={!!errors.name}
           helperText={errors.name?.message}
           InputLabelProps={{
-            shrink: true, // Ensure label is always visible when there's content
+            shrink: true, 
           }}
         />
         <TextField
@@ -113,7 +114,7 @@ const ClientFormPage: React.FC = () => {
           error={!!errors.companyName}
           helperText={errors.companyName?.message}
           InputLabelProps={{
-            shrink: true, // Ensure label is always visible when there's content
+            shrink: true, 
           }}
         />
         <TextField
@@ -124,7 +125,7 @@ const ClientFormPage: React.FC = () => {
           error={!!errors.companyEmail}
           helperText={errors.companyEmail?.message}
           InputLabelProps={{
-            shrink: true, // Ensure label is always visible when there's content
+            shrink: true, 
           }}
         />
         <TextField
@@ -135,7 +136,7 @@ const ClientFormPage: React.FC = () => {
           error={!!errors.companyAddress}
           helperText={errors.companyAddress?.message}
           InputLabelProps={{
-            shrink: true, // Ensure label is always visible when there's content
+            shrink: true, 
           }}
         />
         <TextField
@@ -146,7 +147,7 @@ const ClientFormPage: React.FC = () => {
           error={!!errors.gstNumber}
           helperText={errors.gstNumber?.message}
           InputLabelProps={{
-            shrink: true, // Ensure label is always visible when there's content
+            shrink: true, 
           }}
         />
         <SubmitButton type="submit" variant="contained" sx={{ background: "rgba(43, 43, 196, 1)" }} fullWidth>

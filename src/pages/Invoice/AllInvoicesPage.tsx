@@ -69,7 +69,7 @@ const AllInvoicesPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate('/'); // Navigate to the previous or desired page
+    navigate(-1); 
   };
 
   useEffect(() => {
@@ -101,19 +101,19 @@ const AllInvoicesPage: React.FC = () => {
       console.error('Error deleting invoice:', error);
     }
   };
-
+  
   const handleEditInvoice = (invoice: any) => {
-    // Handle editing invoice functionality here
+    navigate(`/invoice-form/${invoice.id}`);
   };
 
-  // const handleChangePage = (event: React.ChangeEvent<unknown>, value: number) => {
-  //   setPage(value);
-  // };
+  const handleChangePage = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+  };
 
   const displayedInvoices = invoices.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
-    <TableSection>
+    <TableSection>  
       <SectionHeading>
         <HeadingText>All Invoices</HeadingText>
         <BackButton onClick={handleBack}>Back</BackButton>

@@ -99,7 +99,7 @@ const InvoiceSection: React.FC = () => {
   };
 
   const handleViewInvoiceDetails = (invoice: any) => {
-    navigate(`/invoice-details/${invoice.id}`); // Navigate to the new details page
+    navigate(`/invoice-details/${invoice.id}`);   
   };
 
   const handleChangePage = (event: React.ChangeEvent<unknown>, value: number) => {
@@ -110,7 +110,6 @@ const InvoiceSection: React.FC = () => {
     navigate('/all-invoices');
   };
 
-  // Calculate start and end index for the current page
   const startIndex = (page - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const displayedInvoices = invoices.slice(startIndex, endIndex);
@@ -186,7 +185,7 @@ const InvoiceSection: React.FC = () => {
         variant="contained"
         color="primary"
         onClick={handleViewAllInvoices}
-        sx={{ background: "rgba(43, 43, 196, 1)" }}
+        sx={{ background: "rgba(43, 43, 196, 1)",marginTop:"50px" }}
       >
         View All Invoices
       </Button>
