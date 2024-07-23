@@ -21,3 +21,17 @@ code {
     display: none;
   }
 }
+
+/* useEffect(() => {
+  const checkCompanyRegistration = async () => {
+    try {
+      const response = await api("get", "/company");
+      console.log(response)
+      if (!response.data) {
+        navigate("/register-company");
+      }
+    } catch (error) {
+      console.error("No company registered or error occurred:", error);
+      navigate("/register-company");
+    }
+  }; */

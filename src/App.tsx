@@ -9,8 +9,8 @@ import ClientForm from "./pages/Client/ClientForm";
 import AllInvoicesPage from "./pages/Invoice/AllInvoicesPage";
 import InvoiceForm from "./pages/Invoice/InvoiceForm";
 import InvoiceDetailsPage from "./pages/Invoice/InvoiceDetailsPage";
+import CreateCompanyPage from "./pages/Company/CreateCompanyPage";
 const App: React.FC = () => {
-  
   return (
     <PrivateRoute>
       <Routes>
@@ -23,6 +23,7 @@ const App: React.FC = () => {
         <Route path="/invoice-form" element={<InvoiceForm />} />
         <Route path="/invoice-form/:id" element={<InvoiceForm />} />
         <Route path="/invoice-details/:id" element={<InvoiceDetailsPage />} />
+        <Route path="/register-company" element={<CreateCompanyPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </PrivateRoute>

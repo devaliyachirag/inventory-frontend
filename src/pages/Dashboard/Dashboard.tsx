@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { AppBar, Tabs, Tab, Toolbar, Typography, Button, Paper } from "@mui/material";
 import styled from "@emotion/styled";
 import ClientSection from "../Client/ClientSection";
 import InvoiceSection from "../Invoice/InvoiceSection";
+import useAuthApi from "../../components/useApi";
 
-const Container = styled.div`
-  padding: 20px;
-  background-color: #f0f2f5;
-  min-height: 100vh;
-`;
+
 
 const StyledAppBar = styled(AppBar)`
-  background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(43, 43, 196, 1) 35%, rgba(0, 212, 255, 1) 100%);
-  // box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(
+    90deg,
+    rgba(2, 0, 36, 1) 0%,
+    rgba(43, 43, 196, 1) 35%,
+    rgba(0, 212, 255, 1) 100%
+  );
 `;
 
 const StyledToolbar = styled(Toolbar)`
@@ -24,7 +25,7 @@ const StyledToolbar = styled(Toolbar)`
 `;
 
 const StyledHeading = styled(Typography)`
-  font-size: 2rem; /* Increased size for better visibility */
+  font-size: 2rem;
   font-weight: bold;
   color: #fff;
 `;
@@ -32,7 +33,7 @@ const StyledHeading = styled(Typography)`
 const StyledButton = styled(Button)`
   background: rgba(43, 43, 196, 1);
   &:hover {
-    background-color: #00796b; /* Darker teal for hover effect */
+    background-color: #00796b;
   }
 `;
 
@@ -52,15 +53,16 @@ const StyledTabs = styled(Tabs)`
 const StyledTabPanel = styled(Paper)`
   padding: 20px;
   margin-top: 20px;
-  border-radius: 8px;   
+  border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 `;
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(parseInt(searchParams.get("tab") || "0", 10));
+  const [loading, setLoading] = useState(true);
+  const api = useAuthApi();
 
   const handleLogout = () => {
     localStorage.clear();
@@ -73,17 +75,37 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
+    const checkCompanyRegistration = async () => {
+      try {
+        const response = await api("GET", "/company");
+        if (response && response.company) {
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("No company registered or error occurred:", error);
+        navigate("/register-company");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkCompanyRegistration();
+  }, [navigate, api]);
+
+  useEffect(() => {
     const tabParam = parseInt(searchParams.get("tab") || "0", 10);
     setActiveTab(tabParam);
   }, [searchParams]);
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <>
       <StyledAppBar position="static">
         <StyledToolbar>
-          <StyledHeading variant="h6">
-            Inventory
-          </StyledHeading>
+          <StyledHeading variant="h6">Inventory</StyledHeading>
           <StyledButton variant="contained" onClick={handleLogout}>
             Logout
           </StyledButton>
