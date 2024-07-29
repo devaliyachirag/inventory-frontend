@@ -2,9 +2,9 @@
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import styled from "@emotion/styled";
-import { useNavigate } from 'react-router-dom';
-import { Snackbar, Alert } from '@mui/material';
-import axiosInstance from '../../components/axiosInstance';
+import { useNavigate } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
+import axiosInstance from "../../components/axiosInstance";
 
 const InputWrapper = styled.div`
   position: relative;
@@ -93,8 +93,8 @@ const LoginForm: React.FC = () => {
   const onSubmit: SubmitHandler<ILoginInput> = async (data) => {
     try {
       const response = await axiosInstance.post("/login", data);
-      localStorage.setItem('token', response.data.token);
-      navigate('/');
+      localStorage.setItem("token", response.data.token);
+      navigate("/");
     } catch (error: any) {
       if (error.response) {
         setErrorMessage(error.response.data.message);
@@ -117,7 +117,7 @@ const LoginForm: React.FC = () => {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <InputWrapper>
           <Input
-            type="email"
+            type="text"
             placeholder="Email"
             {...register("email", {
               pattern: {
@@ -158,7 +158,11 @@ const LoginForm: React.FC = () => {
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
       >
-        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
           {errorMessage}
         </Alert>
       </Snackbar>

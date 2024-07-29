@@ -73,8 +73,14 @@ const CompanyRegisterPage: React.FC = () => {
     checkCompany();
   }, [navigate]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   return (
     <Box sx={formStyle}>
+     
       <Typography variant="h6" gutterBottom>
         Register Company
       </Typography>
@@ -171,12 +177,20 @@ const CompanyRegisterPage: React.FC = () => {
         <Button
           type="submit"
           variant="contained"
-          sx={{ background: "rgba(43, 43, 196, 1)" }}
+          sx={{ background: "rgba(43, 43, 196, 1)", mt: 2 }}
           fullWidth
-          style={{ marginTop: "20px" }}
         >
           Submit
         </Button>
+        <Button
+        variant="contained"
+        color="error"
+        onClick={handleLogout}
+        sx={{ mt: 2 }}
+        fullWidth
+      >
+        Logout
+      </Button>
       </form>
     </Box>
   );

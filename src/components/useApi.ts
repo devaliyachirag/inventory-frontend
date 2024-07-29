@@ -1,15 +1,13 @@
 import { useCallback } from 'react';
 import axios from 'axios';
+import axiosInstance from "../components/axiosInstance"
 
 const useAuthApi = () => {
   const token = localStorage.getItem('token');
-  const instance = axios.create({
-    baseURL: process.env.REACT_APP_BaseURL,
-  });
   const api = useCallback(async (method:any, url:any, data = null) => {
     
     try {
-      const response = await instance({
+      const response = await axiosInstance({
         method,
         url:`${process.env.REACT_APP_BaseURL}${url}`,
         data,

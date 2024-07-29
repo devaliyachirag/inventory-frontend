@@ -6,8 +6,6 @@ import ClientSection from "../Client/ClientSection";
 import InvoiceSection from "../Invoice/InvoiceSection";
 import useAuthApi from "../../components/useApi";
 
-
-
 const StyledAppBar = styled(AppBar)`
   background: linear-gradient(
     90deg,
@@ -77,7 +75,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const checkCompanyRegistration = async () => {
       try {
-        const response = await api("GET", "/company");
+        const response = await api("get", "/company");
         if (response && response.company) {
           navigate("/");
         }
@@ -89,13 +87,17 @@ const Dashboard: React.FC = () => {
       }
     };
 
-    checkCompanyRegistration();
+    if (loading) {
+      checkCompanyRegistration();
+    }
   }, [navigate, api]);
 
   useEffect(() => {
     const tabParam = parseInt(searchParams.get("tab") || "0", 10);
-    setActiveTab(tabParam);
-  }, [searchParams]);
+    if (tabParam !== activeTab) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams, activeTab]);
 
   if (loading) {
     return null;

@@ -213,7 +213,7 @@ const InvoiceFormPage: React.FC = () => {
             <FormControl fullWidth margin="normal" error={!!errors.clientId}>
               <InputLabel>Client</InputLabel>
               <Select {...field} label="Client">
-                {clientList.map((client) => (
+                {clientList && clientList.map((client) => (
                   <MenuItem key={client.id} value={client.id}>
                     {client.name}
                   </MenuItem>

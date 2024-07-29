@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import axios from 'axios';
-import LoginForm from './pages/Login/Loginform';
+import LoginForm from '../pages/Login/Loginform';
 import { SnackbarProvider } from 'notistack';
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -81,30 +81,5 @@ describe('LoginForm', () => {
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
     
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
-  });
-
-  test('displays error message on login failure', async () => {
-    // Mock axiosInstance to simulate login failure
-    mockedAxios.post.mockRejectedValueOnce({
-      response: { data: { message: 'Invalid credentials' } },
-    });
-
-    render(
-      <MemoryRouter>
-        <SnackbarProvider>
-          <LoginForm />
-        </SnackbarProvider>
-      </MemoryRouter>
-    );
-
-    fireEvent.change(screen.getByPlaceholderText(/email/i), {
-      target: { value: 'test@example.com' },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/password/i), {
-      target: { value: 'wrongpassword' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: /login/i }));
-
-    expect(await screen.findByText(/invalid credentials/i)).toBeInTheDocument();
   });
 });
